@@ -1,1 +1,9 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.linmobile_ops.twa",
+        "sha256_cert_fingerprints": ["A9:16:7C:B2:EE:EC:D3:ED:D0:6D:10:17:6F:DF:3A:6A:4B:DD:66:0F:0D:5E:6E:D2:B7:7D:EF:17:4E:69:5E:88"]
+      }
+    }]
 
