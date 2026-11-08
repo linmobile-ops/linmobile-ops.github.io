@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lin Mobile Shop</title>
+<meta name="theme-color" content="#1e1b4b">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#0f172a;--ink2:#475569;--ink3:#94a3b8;--line:rgba(15,23,42,.08);
+  --card:rgba(255,255,255,.76);--card-bd:rgba(255,255,255,.95);
+  --pri:#4f46e5;--pri2:#6366f1;--pri-soft:#eef2ff;
+  --ok:#047857;--ok-soft:#d1fae5;--warn:#b45309;--warn-soft:#fef3c7;
+  --bad:#b91c1c;--bad-soft:#fee2e2;--info:#0369a1;--info-soft:#e0f2fe;--mute-soft:#e2e8f0;
+  --sh:0 1px 2px rgba(15,23,42,.04),0 14px 34px -10px rgba(49,46,129,.18);
+  --r:20px;--navh:76px;
+}
+html{background:#eef2ff;scroll-behavior:smooth}
+body{font-family:'Noto Sans Myanmar','Padauk','Myanmar Text','Segoe UI',system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.7;color:var(--ink);
+  min-height:100vh;background:linear-gradient(165deg,#e8edff 0%,#f3eeff 48%,#e4f6ff 100%) fixed;position:relative;-webkit-font-smoothing:antialiased}
+body::before,body::after{content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(80px);pointer-events:none}
+body::before{width:320px;height:320px;background:#a5b4fc;top:-90px;left:-90px;opacity:.5}
+body::after{width:360px;height:360px;background:#67e8f9;bottom:-120px;right:-110px;opacity:.32}
+.app{max-width:520px;margin:0 auto;min-height:100vh}
+.ic{width:1.25em;height:1.25em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:-.25em}
+button{font-family:inherit;border:none;background:none;color:inherit;cursor:pointer;touch-action:manipulation}
+a{color:inherit}
+
+/* ---------- App bar ---------- */
+.appbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px;
+  background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);color:#fff;box-shadow:0 6px 20px -6px rgba(30,27,75,.45)}
+.appbar .logo{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:4px;object-fit:contain}
+.appbar .ttl{flex:1;min-width:0}
+.appbar h1{font-size:16.5px;font-weight:700;line-height:1.45;letter-spacing:.2px}
+.appbar p{font-size:11.5px;opacity:.72;line-height:1.5}
+.sync-btn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:18px;position:relative}
+.sync-btn.spin .ic{animation:spin 1s linear infinite}
+.sync-btn .dot{position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;background:#f59e0b;border:2px solid #312e81;display:none}
+.sync-btn.stale .dot{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- Pages ---------- */
+.page{display:none;padding:16px 14px calc(var(--navh) + 36px + env(safe-area-inset-bottom,0px))}
+.page.active{display:block;animation:pg .25s ease}
+@keyframes pg{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.stack>*+*{margin-top:14px}
+
+/* ---------- Cards ---------- */
+.card{background:var(--card);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);
+  border:1px solid var(--card-bd);border-radius:var(--r);padding:16px;box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.9)}
+.card-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.card-h h2{flex:1;font-size:14.5px;font-weight:700;line-height:1.5;color:#1e1b4b}
+.chip-ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:17px;flex:none;background:var(--pri-soft);color:var(--pri)}
+.chip-ic.ok{background:var(--ok-soft);color:var(--ok)}.chip-ic.warn{background:var(--warn-soft);color:var(--warn)}
+.chip-ic.bad{background:var(--bad-soft);color:var(--bad)}.chip-ic.info{background:var(--info-soft);color:var(--info)}
+.count{font-size:11.5px;font-weight:700;padding:1px 9px;border-radius:99px;background:var(--pri-soft);color:var(--pri)}
+.muted{color:var(--ink2);font-size:12.5px}
+.lead{font-size:12.5px;color:var(--ink2);margin:-4px 0 12px}
+
+/* ---------- Hero / KPI ---------- */
+.hero{border-radius:24px;padding:18px;color:#fff;background:linear-gradient(135deg,#312e81 0%,#4f46e5 55%,#6366f1 100%);box-shadow:0 18px 36px -14px rgba(79,70,229,.6);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-60px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.1)}
+.hero small{font-size:12px;opacity:.8;display:flex;align-items:center;gap:6px}
+.hero .big{font-size:30px;font-weight:800;line-height:1.35;margin:2px 0 10px;letter-spacing:.3px;position:relative;z-index:1}
+.hero .big span{font-size:14px;font-weight:600;opacity:.85;margin-left:4px}
+.hero .sub{display:flex;gap:10px;position:relative;z-index:1}
+.hero .sub div{flex:1;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:8px 12px;font-size:11.5px;line-height:1.5}
+.hero .sub b{display:block;font-size:15px;font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi{background:var(--card);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--card-bd);border-radius:18px;padding:12px 8px;text-align:center;box-shadow:var(--sh);width:100%}
+.kpi .chip-ic{margin:0 auto 6px}
+.kpi b{display:block;font-size:20px;font-weight:800;line-height:1.3}
+.kpi span{font-size:11px;color:var(--ink2);line-height:1.4;display:block}
+.kpi:active,.item.tap:active{transform:scale(.97)}
+
+/* ---------- Forms ---------- */
+.field{margin-bottom:12px}
+.field>label{display:block;font-size:12px;font-weight:600;color:var(--ink2);margin:0 0 5px 3px}
+input,select,textarea{width:100%;min-height:46px;padding:11px 14px;border-radius:14px;border:1px solid rgba(15,23,42,.1);background:rgba(255,255,255,.85);font:inherit;font-size:15px;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s}
+input::placeholder{color:#a3aebf}
+input:focus,select:focus{border-color:var(--pri2);box-shadow:0 0 0 4px rgba(99,102,241,.16);background:#fff}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.search{position:relative;margin-bottom:10px}
+.search .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink3);font-size:17px}
+.search input{padding-left:40px}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:14px;font-size:14.5px;font-weight:700;transition:transform .12s,box-shadow .2s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.55;pointer-events:none}
+.btn.block{width:100%}
+.btn-pri{color:#fff;background:linear-gradient(135deg,#4f46e5,#6366f1);box-shadow:0 8px 18px -6px rgba(79,70,229,.55)}
+.btn-ok{color:#fff;background:linear-gradient(135deg,#047857,#10b981);box-shadow:0 8px 18px -6px rgba(5,150,105,.5)}
+.btn-soft{color:var(--pri);background:var(--pri-soft)}
+.btn-info{color:var(--info);background:var(--info-soft)}
+.btn-ghost{color:var(--ink2);background:rgba(255,255,255,.7);border:1px solid var(--line)}
+.btn-bad{color:var(--bad);background:var(--bad-soft)}
+.btn-danger{color:#fff;background:linear-gradient(135deg,#b91c1c,#ef4444)}
+.btn-sm{min-height:34px;padding:0 12px;font-size:12.5px;border-radius:11px;gap:6px}
+.btn-sq{width:36px;min-height:36px;padding:0;border-radius:11px;font-size:16px}
+.mt{margin-top:10px}
+
+/* ---------- Segmented / chips ---------- */
+.seg{display:flex;gap:4px;padding:4px;border-radius:16px;background:rgba(255,255,255,.62);border:1px solid var(--card-bd);box-shadow:var(--sh);margin-bottom:14px}
+.seg button{flex:1;min-height:40px;border-radius:12px;font-size:13px;font-weight:700;color:var(--ink2);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s}
+.seg button.on{color:#fff;background:linear-gradient(135deg,#4f46e5,#6366f1);box-shadow:0 6px 14px -4px rgba(79,70,229,.5)}
+.seg .n{font-size:11px;padding:0 7px;border-radius:99px;background:rgba(15,23,42,.08)}
+.seg button.on .n{background:rgba(255,255,255,.25)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 1px 10px;margin:0 -2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;min-height:34px;padding:0 14px;border-radius:99px;font-size:12.5px;font-weight:600;color:var(--ink2);background:rgba(255,255,255,.75);border:1px solid var(--line);display:flex;align-items:center;gap:6px}
+.chips button.on{color:#fff;background:var(--pri);border-color:var(--pri);box-shadow:0 5px 12px -4px rgba(79,70,229,.5)}
+
+/* ---------- List items ---------- */
+.item{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:16px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.95);box-shadow:0 1px 2px rgba(15,23,42,.04);width:100%;text-align:left}
+.item+.item{margin-top:10px}
+.item .chip-ic{width:40px;height:40px;border-radius:12px;font-size:20px}
+.item .body{flex:1;min-width:0}
+.item .nm{font-size:14px;font-weight:700;line-height:1.5;word-break:break-word}
+.item .sb{font-size:12px;color:var(--ink2);line-height:1.6;word-break:break-word}
+.item .sb .ic{font-size:13px;margin-right:3px;color:var(--ink3)}
+.item .side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:none}
+.item .acts{display:flex;gap:6px}
+.price{font-size:13px;font-weight:700;color:var(--ok)}
+.neg{color:var(--bad);font-weight:700}
+.tap{cursor:pointer;transition:transform .12s}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap;line-height:1.7}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.info{background:var(--info-soft);color:var(--info)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.mute{background:var(--mute-soft);color:#334155}
+button.pill{cursor:pointer}
+.tiny{display:inline-block;padding:0 8px;border-radius:8px;font-size:11px;font-weight:600;background:var(--info-soft);color:var(--info);margin-left:4px;vertical-align:1px}
+
+/* ---------- Totals ---------- */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.tile{border-radius:16px;padding:12px 14px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#3730a3);box-shadow:0 10px 20px -10px rgba(30,27,75,.6)}
+.tile.g{background:linear-gradient(135deg,#047857,#10b981)}
+.tile small{font-size:11.5px;opacity:.85;display:block;line-height:1.6}
+.tile b{font-size:17px;font-weight:800;line-height:1.5;display:block;word-break:break-word}
+.totalbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-radius:16px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#3730a3);margin-top:12px}
+.totalbar small{font-size:11.5px;opacity:.8;display:block}
+.totalbar b{font-size:20px;font-weight:800}
+
+/* ---------- Empty / skeleton ---------- */
+.empty{text-align:center;color:var(--ink3);padding:22px 10px;font-size:13px}
+.empty .ic{font-size:30px;display:block;margin:0 auto 6px;opacity:.7}
+.err{color:var(--bad)}
+.skel{height:64px;border-radius:16px;background:linear-gradient(90deg,rgba(255,255,255,.5) 25%,rgba(255,255,255,.95) 50%,rgba(255,255,255,.5) 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+.skel+.skel{margin-top:10px}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* ---------- Nav ---------- */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));width:calc(100% - 24px);max-width:496px;z-index:60;display:flex;padding:6px;
+  border-radius:26px;background:rgba(255,255,255,.72);backdrop-filter:blur(26px) saturate(190%);-webkit-backdrop-filter:blur(26px) saturate(190%);
+  border:1px solid rgba(255,255,255,.95);box-shadow:0 14px 36px -8px rgba(30,27,75,.3),inset 0 1px 0 #fff}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 2px 6px;border-radius:20px;font-size:10.5px;font-weight:600;color:#64748b;line-height:1.5;transition:all .2s}
+.nav button .ic{font-size:22px}
+.nav button.on{color:var(--pri);background:rgba(99,102,241,.13)}
+.nav button.on .ic{stroke-width:2.1}
+
+/* ---------- Sheet / dialog / toast ---------- */
+.overlay{position:fixed;inset:0;z-index:100;display:none;background:rgba(15,23,42,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:flex-end;justify-content:center}
+.overlay.open{display:flex;animation:fade .2s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{width:100%;max-width:520px;max-height:92vh;overflow-y:auto;background:rgba(255,255,255,.92);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);
+  border-radius:26px 26px 0 0;padding:10px 16px calc(20px + env(safe-area-inset-bottom,0px));animation:up .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+.sheet .grab{width:42px;height:5px;border-radius:9px;background:#cbd5e1;margin:2px auto 12px}
+.dlg{align-items:center;padding:24px}
+.dlg .box{width:100%;max-width:340px;background:#fff;border-radius:22px;padding:20px;text-align:center;box-shadow:0 30px 60px -20px rgba(15,23,42,.5);animation:pop .22s}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.dlg h3{font-size:16px;margin-bottom:6px}
+.dlg p{font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.7}
+.dlg .btns{display:flex;gap:10px}.dlg .btns .btn{flex:1}
+.toast{position:fixed;left:50%;bottom:calc(var(--navh) + 30px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);z-index:200;max-width:calc(100% - 32px);
+  background:rgba(15,23,42,.94);color:#fff;padding:10px 16px;border-radius:14px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;display:flex;align-items:center;gap:8px}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:#991b1b}.toast.ok .ic{color:#6ee7b7}
+
+/* ---------- Voucher (solid colours for html2canvas) ---------- */
+#voucher-card{background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;font-family:inherit}
+.v-head{background:#1e1b4b;color:#fff;padding:18px;text-align:center}
+.v-head .brand{display:flex;align-items:center;justify-content:center;gap:10px}
+.v-head img{width:38px;height:38px;object-fit:contain;border-radius:9px;background:rgba(255,255,255,.12);padding:3px}
+.v-head .nm{font-size:18px;font-weight:800;line-height:1.4;text-align:left}
+.v-head .id{font-size:11px;opacity:.7;text-align:left}
+.v-head .dt{font-size:11px;opacity:.65;margin-top:6px}
+.v-body{padding:14px}
+.v-cust{background:#f1f5f9;border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.8;margin-bottom:12px;color:#0f172a}
+.v-row{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:6px 0;border-bottom:1px dashed #e2e8f0}
+.v-total{display:flex;justify-content:space-between;align-items:center;background:#ecfdf5;border-radius:12px;padding:12px 14px;margin-top:12px}
+.v-total span{font-size:14px;font-weight:700;color:#047857}.v-total b{font-size:20px;font-weight:800;color:#047857}
+.v-foot{text-align:center;margin-top:14px;font-size:11.5px;color:#94a3b8;border-top:1px dashed #e2e8f0;padding-top:12px;line-height:1.8}
+.v-foot b{color:#4f46e5}
+
+.banner{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;color:#78350f}
+.banner h3{font-size:13.5px;line-height:1.5}.banner p{font-size:12px;line-height:1.6;margin:2px 0 10px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.spin-i{animation:spin 1s linear infinite}
+input[type=search]{-webkit-appearance:none;appearance:none}
+input[type=search]::-webkit-search-cancel-button{display:none}
+input[type=date],input[type=datetime-local]{min-height:46px}
+
+.item{flex-wrap:wrap}
+.item .foot{flex:0 0 100%;display:flex;gap:8px;justify-content:flex-end;padding-top:10px;margin-top:2px;border-top:1px solid var(--line)}
+.btn{white-space:nowrap}
+.item .foot{gap:6px}
+.item .foot .btn{flex:1;padding:0 6px;font-size:12px}
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/><path d="M10 20v-5h4v5"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3 3.5 7.5v9L12 21l8.5-4.5v-9z"/><path d="M3.5 7.5 12 12l8.5-4.5"/><path d="M12 12v9"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h3l2.3 11.2a1.5 1.5 0 0 0 1.5 1.2h8.4a1.5 1.5 0 0 0 1.5-1.1L21 7.5H6.2"/></symbol>
+<symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><rect x="8" y="2.5" width="8" height="4" rx="1"/><path d="M16 4.5h2a2 2 0 0 1 2 2V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></symbol>
+<symbol id="i-receipt" viewBox="0 0 24 24"><path d="M5 3h14v18l-2.3-1.6L14.3 21 12 19.4 9.7 21l-2.4-1.6L5 21z"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+<symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.5L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.5L20 15.5"/><path d="M20 20v-4.5h-4.5"/></symbol>
+<symbol id="i-call" viewBox="0 0 24 24"><path d="M5 4h3l1.8 4.5-2 1.3a11 11 0 0 0 6.4 6.4l1.3-2L20 16v3a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/></symbol>
+<symbol id="i-tick" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-xcircle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+<symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 5 4 6 4 9s-4 4-4 9M16 3c0 5-4 6-4 9s4 4 4 9"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></symbol>
+<symbol id="i-trend" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v3"/><path d="M4 7.5V17a2.5 2.5 0 0 0 2.5 2.5H20V8H6.5A2.5 2.5 0 0 1 4 7.5z"/><circle cx="16.5" cy="13.5" r="1"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 11 12 15.5 16.5 11"/><path d="M4 19h16"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8 12 3.5 16.5 8"/><path d="M4 19h16"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="m8.2 10.8 7.6-3.6M8.2 13.2l7.6 3.6"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3.5h11l3.5 3.5V20a1 1 0 0 1-1 1h-13.5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z"/><path d="M8 3.5v5h7v-5M8 21v-6h8v6"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18h2"/></symbol>
+<symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></symbol>
+<symbol id="i-sim" viewBox="0 0 24 24"><path d="M7 3h7l4 4v13a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 20V4.5A1.5 1.5 0 0 1 7 3z"/><rect x="9" y="12" width="6" height="6" rx="1"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4.5 4.5 0 0 1 .5 9.5z"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8a1.4 1.4 0 0 1 0 2l-6.5 6.5a1.4 1.4 0 0 1-2 0z"/><circle cx="8.5" cy="8.5" r="1.3"/></symbol>
+<symbol id="i-note" viewBox="0 0 24 24"><path d="M6 3.5h9l3.5 3.5V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z"/><path d="M9 11h6M9 15h6"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3.5 13.5 6 5.5a1.5 1.5 0 0 1 1.4-1h9.2a1.5 1.5 0 0 1 1.4 1l2.5 8"/><path d="M3.5 13.5V18a1.5 1.5 0 0 0 1.5 1.5h14a1.5 1.5 0 0 0 1.5-1.5v-4.5h-5l-1.5 2.5h-4L8.5 13.5z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8 7.5 9.5 4.4-1.5 7.5-4.9 7.5-9.5V6z"/><path d="m8.8 12 2.4 2.4 4-4.4"/></symbol>
+</defs></svg>
+
+<div class="app">
+
+<header class="appbar">
+  <img class="logo" id="logo-img" alt="Lin Mobile Shop">
+  <div class="ttl"><h1>Lin Mobile Shop</h1><p>ဆိုင်စီမံခန့်ခွဲမှု</p></div>
+  <button class="sync-btn" id="sync-btn" onclick="syncAll(true)" aria-label="Google Sheet နှင့် ညှိရန်"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sync"/></svg><span class="dot"></span></button>
+</header>
+
+<!-- ================= HOME ================= -->
+<main id="page-dash" class="page active stack">
+  <div id="migrate-box"></div>
+  <section class="hero">
+    <small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-wallet"/></svg> ယနေ့ ဝင်ငွေ</small>
+    <div class="big"><em id="h-today" style="font-style:normal">0</em><span>ကျပ်</span></div>
+    <div class="sub">
+      <div>ရောင်းချမှု<b id="h-count">0</b></div>
+      <div>အမြတ်<b id="h-profit">0</b></div>
+      <div>စုစုပေါင်း ဝင်ငွေ<b id="h-total">0</b></div>
+    </div>
+  </section>
+  <section class="kpis">
+    <button class="kpi tap" onclick="goPage('repair');repTab('list')"><div class="chip-ic info"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-wrench"/></svg></div><b id="k-rep">0</b><span>ပြင်ဆဲဖုန်း</span></button>
+    <button class="kpi tap" onclick="openProducts()"><div class="chip-ic warn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"/></svg></div><b id="k-low">0</b><span>Stock နည်း</span></button>
+    <button class="kpi tap" onclick="openProducts()"><div class="chip-ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-box"/></svg></div><b id="k-prod">0</b><span>ကုန်ပစ္စည်းမျိုး</span></button>
+  </section>
+  <section class="card">
+    <div class="card-h"><div class="chip-ic info"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-wrench"/></svg></div><h2>မပြီးသေးသော ပြင်ဖုန်းများ</h2><span class="count" id="d-rep-count">0</span></div>
+    <div id="d-rep-list"></div>
+  </section>
+  <section class="card">
+    <div class="card-h"><div class="chip-ic warn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"/></svg></div><h2>Stock နည်းနေသော ပစ္စည်းများ</h2></div>
+    <div id="d-low-stock"></div>
+  </section>
+  <section class="card">
+    <div class="card-h"><div class="chip-ic ok"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-receipt"/></svg></div><h2>နောက်ဆုံး ရောင်းချမှုများ</h2></div>
+    <div id="d-recent"></div>
+  </section>
+  <p class="muted" style="text-align:center;padding:4px 0" id="d-sync"></p>
+</main>
+
+<!-- ================= PRODUCTS ================= -->
+<main id="page-products" class="page">
+  <div class="seg">
+    <button id="pseg-list" class="on" onclick="prodTab('list')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"/></svg> စာရင်း <span class="n" id="pseg-n">0</span></button>
+    <button id="pseg-form" onclick="prodTab('form')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"/></svg> <span id="pseg-form-t">ပစ္စည်းသစ်</span></button>
+  </div>
+  <section class="card" id="p-list-card">
+    <div class="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="p-search" placeholder="ကုန်ပစ္စည်း ရှာရန်..." autocomplete="off"></div>
+    <div class="chips" id="p-chips"></div>
+    <div id="product-list"></div>
+  </section>
+  <section class="card" id="p-form-card" style="display:none">
+    <div class="card-h"><div class="chip-ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-box"/></svg></div><h2 id="p-form-title">ကုန်ပစ္စည်းသစ် ထည့်ရန်</h2></div>
+    <div class="field"><label for="p-name">ကုန်ပစ္စည်းအမည်</label><input type="text" id="p-name" placeholder="ဥပမာ: Samsung A15 / အားသွင်းကြိုး"></div>
+    <div class="field"><label for="p-cat">အမျိုးအစား</label>
+      <select id="p-cat"><option value="phone">ဖုန်း</option><option value="acc">Accessories</option><option value="repair">Repair ပစ္စည်း</option><option value="sim">SIM</option><option value="other">အခြား</option></select></div>
+    <div class="row2">
+      <div class="field"><label for="p-price">ဝယ်ဈေး (ကျပ်)</label><input type="number" inputmode="numeric" id="p-price" placeholder="0"></div>
+      <div class="field"><label for="p-sell">ရောင်းဈေး (ကျပ်)</label><input type="number" inputmode="numeric" id="p-sell" placeholder="0"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label for="p-stock">Stock အရေအတွက်</label><input type="number" inputmode="numeric" id="p-stock" value="1"></div>
+      <div class="field"><label for="p-imei">IMEI / Serial</label><input type="text" id="p-imei" placeholder="ရွေးချယ်ရန်"></div>
+    </div>
+    <button class="btn btn-pri block" id="p-save-btn" onclick="saveProduct()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-save"/></svg> သိမ်းမည်</button>
+    <button class="btn btn-ghost block mt" id="p-cancel-btn" style="display:none" onclick="resetProdForm();prodTab('list')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"/></svg> မပြင်တော့ပါ</button>
+  </section>
+</main>
+
+<!-- ================= SELL ================= -->
+<main id="page-sales" class="page stack">
+  <section class="card">
+    <div class="card-h"><div class="chip-ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-cart"/></svg></div><h2>ရောင်းချမည့် ပစ္စည်း</h2></div>
+    <div class="field"><label for="s-prod">ကုန်ပစ္စည်း</label><select id="s-prod"></select></div>
+    <div style="display:flex;gap:10px;align-items:flex-end">
+      <div class="field" style="flex:0 0 96px;margin:0"><label for="s-qty">အရေအတွက်</label><input type="number" inputmode="numeric" id="s-qty" value="1" min="1"></div>
+      <button class="btn btn-soft" style="flex:1" onclick="addSaleItem()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"/></svg> စာရင်းထဲထည့်မည်</button>
+    </div>
+  </section>
+  <section class="card">
+    <div class="card-h"><div class="chip-ic ok"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"/></svg></div><h2>ရွေးထားသော ပစ္စည်းများ</h2><span class="count" id="s-n">0</span></div>
+    <div id="s-list"></div>
+    <div class="totalbar"><div><small>စုစုပေါင်း</small><small id="s-profit-lbl"></small></div><b id="s-total">0 ကျပ်</b></div>
+  </section>
+  <section class="card">
+    <div class="card-h"><div class="chip-ic info"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-user"/></svg></div><h2>ဝယ်သူ အချက်အလက်</h2></div>
+    <div class="field"><label for="s-cust">ဝယ်သူအမည်</label><input type="text" id="s-cust" placeholder="မဖြည့်ပါက ဧည့်သည်"></div>
+    <div class="field"><label for="s-phone">ဖုန်းနံပါတ်</label><input type="tel" inputmode="tel" id="s-phone" placeholder="09xxxxxxxxx"></div>
+    <div class="field"><label for="s-note">မှတ်ချက်</label><input type="text" id="s-note" placeholder="အာမခံ၊ ပေးချေမှု စသဖြင့်"></div>
+    <button class="btn btn-ok block" id="s-go" onclick="generateVoucher()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-receipt"/></svg> ဘောင်ချာ ထုတ်မည်</button>
+  </section>
+</main>
+
+<!-- ================= REPAIR ================= -->
+<main id="page-repair" class="page">
+  <div class="seg">
+    <button id="seg-form" class="on" onclick="repTab('form')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"/></svg> <span id="seg-form-t">လက်ခံမှတ်တမ်း</span></button>
+    <button id="seg-list" onclick="repTab('list')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"/></svg> ပြင်ဆင်မှုစာရင်း <span class="n" id="seg-n">0</span></button>
+  </div>
+  <section class="card" id="r-form-card">
+    <div class="card-h"><div class="chip-ic info"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-wrench"/></svg></div><h2 id="r-form-title">ဖုန်းပြင်ရန် လက်ခံမှတ်တမ်း</h2></div>
+    <div class="field"><label for="r-cust">ဖုန်းပိုင်ရှင်အမည်</label><input type="text" id="r-cust" placeholder="အမည်"></div>
+    <div class="field"><label for="r-phone">ဆက်သွယ်ရန် ဖုန်းနံပါတ်</label><input type="tel" inputmode="tel" id="r-phone" placeholder="09xxxxxxxxx"></div>
+    <div class="field"><label for="r-model">ဖုန်းမော်ဒယ်</label><input type="text" id="r-model" placeholder="ဥပမာ: Redmi Note 13"></div>
+    <div class="field"><label for="r-issue">ပြင်ရမည့် ပြဿနာ</label><input type="text" id="r-issue" placeholder="ဥပမာ: ဖန်သားပြင်ကွဲ"></div>
+    <div class="row2">
+      <div class="field"><label for="r-fee">ပြင်ခ (ကျပ်)</label><input type="number" inputmode="numeric" id="r-fee" placeholder="0"></div>
+      <div class="field"><label for="r-cost">ပစ္စည်းကုန်ကျစရိတ်</label><input type="number" inputmode="numeric" id="r-cost" placeholder="0"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label for="r-paid">ကြိုပေးငွေ</label><input type="number" inputmode="numeric" id="r-paid" placeholder="0"></div>
+      <div class="field"><label for="r-due">ပြန်ပေးမည့်ရက်</label><input type="date" id="r-due"></div>
+    </div>
+    <div class="field"><label for="r-dt">လက်ခံသည့် ရက်/အချိန်</label><input type="datetime-local" id="r-dt"></div>
+    <div class="field"><label for="r-note">မှတ်ချက် / အာမခံ</label><input type="text" id="r-note" placeholder="ဥပမာ: ၁ လ အာမခံ"></div>
+    <button class="btn btn-pri block" id="r-add-btn" onclick="addRepair()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-save"/></svg> မှတ်တမ်းသွင်းမည်</button>
+    <button class="btn btn-ghost block mt" id="r-cancel-btn" style="display:none" onclick="resetRepForm();repTab('list')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"/></svg> မပြင်တော့ပါ</button>
+  </section>
+  <section class="card" id="r-list-card" style="display:none">
+    <div class="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="r-search" placeholder="အမည်၊ မော်ဒယ်၊ ဖုန်းနံပါတ်..." autocomplete="off"></div>
+    <div class="chips" id="r-chips"></div>
+    <div id="repair-list"></div>
+    <div class="tiles">
+      <div class="tile"><small>စုစုပေါင်း ပြင်ခ</small><b id="r-total">0 ကျပ်</b></div>
+      <div class="tile g"><small>အမြတ်</small><b id="r-profit">0 ကျပ်</b></div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= HISTORY ================= -->
+<main id="page-history" class="page">
+  <section class="card">
+    <div class="card-h"><div class="chip-ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"/></svg></div><h2>ရောင်းချမှု မှတ်တမ်း</h2><span class="count" id="h-n">0</span></div>
+    <div class="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="h-search" placeholder="ဝယ်သူအမည်၊ ဘောင်ချာနံပါတ်..." autocomplete="off"></div>
+    <div id="h-list"></div>
+  </section>
+</main>
+
+<nav class="nav" id="nav">
+  <button class="on" data-p="dash" onclick="goPage('dash')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-home"/></svg>Home</button>
+  <button data-p="products" onclick="goPage('products')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-box"/></svg>ကုန်ပစ္စည်း</button>
+  <button data-p="sales" onclick="goPage('sales')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-cart"/></svg>ရောင်းချ</button>
+  <button data-p="repair" onclick="goPage('repair')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-wrench"/></svg>ပြင်ဖုန်း</button>
+  <button data-p="history" onclick="goPage('history')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-receipt"/></svg>မှတ်တမ်း</button>
+</nav>
+</div>
+
+<!-- Voucher / detail sheet -->
+<div class="overlay" id="sheet" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet"><div class="grab"></div><div id="sheet-body"></div></div>
+</div>
+<!-- Confirm dialog -->
+<div class="overlay dlg" id="dlg"><div class="box"><h3 id="dlg-t"></h3><p id="dlg-p"></p><div class="btns"><button class="btn btn-ghost" id="dlg-no">မလုပ်တော့ပါ</button><button class="btn btn-pri" id="dlg-yes">အတည်ပြုမည်</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const LOGO="data:image/png;base64,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";
+const API="https://sheetdb.io/api/v1/jjdedskalyu5j";
+const TAB={repairs:"",products:"products",sales:"sales"};      // "" = ပထမ worksheet
+const CK={repairs:"lms3_repairs",products:"lms3_products",sales:"lms3_sales"};
+const KINDS=["repairs","products","sales"];
+const CAT={phone:{t:"ဖုန်း",i:"phone"},acc:{t:"Accessories",i:"headphones"},repair:{t:"Repair ပစ္စည်း",i:"wrench"},sim:{t:"SIM",i:"sim"},other:{t:"အခြား",i:"box"}};
+const ST={wait:{t:"စောင့်ဆိုင်း",c:"warn",n:"doing"},doing:{t:"ပြင်နေ",c:"info",n:"done"},done:{t:"ပြီးပြီ",c:"ok",n:"picked"},picked:{t:"ပြန်ယူပြီး",c:"mute",n:"wait"},fail:{t:"ပြင်မရ",c:"bad",n:"picked"}};
+
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+const p2=x=>String(x).padStart(2,"0");
+const num=v=>{const n=parseFloat(String(v==null?"":v).replace(/,/g,""));return isNaN(n)?0:n;};
+const sum=(a,k)=>a.reduce((s,x)=>s+(Number(x[k])||0),0);
+const money=n=>(Number(n)||0).toLocaleString("en-US");
+const esc=x=>String(x==null?"":x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const I=(n,c)=>`<svg class="ic ${c||""}" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const pill=(c,t)=>`<span class="pill ${c}">${t}</span>`;
+const safeJSON=(s,d)=>{try{const v=JSON.parse(s);return v==null?d:v;}catch(e){return d;}};
+function nowISO(){const d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())+"T"+p2(d.getHours())+":"+p2(d.getMinutes());}
+function todayKey(){return nowISO().slice(0,10);}
+function stamp(){const d=new Date();return p2(d.getDate())+"/"+p2(d.getMonth()+1)+"/"+d.getFullYear()+" "+p2(d.getHours())+":"+p2(d.getMinutes());}
+function parseSheetDate(v,withTime){
+  v=String(v==null?"":v).trim();if(!v)return "";
+  let y,mo,d,h="00",mi="00",m;
+  if(/^\d+(\.\d+)?$/.test(v)){const t=new Date(Math.round((parseFloat(v)-25569)*1440)*60000);y=t.getUTCFullYear();mo=t.getUTCMonth()+1;d=t.getUTCDate();h=p2(t.getUTCHours());mi=p2(t.getUTCMinutes());}
+  else if(m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/)){y=+m[1];mo=+m[2];d=+m[3];if(m[4]){h=p2(m[4]);mi=m[5];}}
+  else if(m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/)){d=+m[1];mo=+m[2];y=+m[3];if(m[4]){h=p2(m[4]);mi=m[5];}}
+  else return "";
+  const D=y+"-"+p2(mo)+"-"+p2(d);return withTime?D+"T"+h+":"+mi:D;
+}
+const fmtD=iso=>{if(!iso)return "";const a=iso.slice(0,10).split("-");return a[2]+"/"+a[1]+"/"+a[0];};
+const fmtDT=iso=>iso?fmtD(iso)+(iso.length>10?" "+iso.slice(11,16):""):"";
+const fixPhone=p=>{p=String(p==null?"":p).trim();return /^\d{9,10}$/.test(p)&&p[0]!=="0"?"0"+p:p;};
+const encImei=v=>v?"IMEI "+v:"";                 // Sheet က ဂဏန်းအဖြစ် မပြောင်းအောင်
+const decImei=v=>String(v||"").replace(/^IMEI\s*/,"");
+
+/* ---------- UI helpers ---------- */
+let _tt;
+function toast(m,type){const e=$("toast");e.className="toast "+(type||"");e.innerHTML=(type==="err"?I("alert"):type==="ok"?I("tick"):"")+"<span>"+esc(m)+"</span>";void e.offsetWidth;e.classList.add("show");clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove("show"),type==="err"?3600:2000);}
+function busy(b,on,txt){if(!b)return;if(on){b.dataset.h=b.innerHTML;b.disabled=true;b.innerHTML=I("sync","spin-i")+" "+txt;}else{b.disabled=false;if(b.dataset.h){b.innerHTML=b.dataset.h;delete b.dataset.h;}}}
+function ask(title,msg,ok,danger){return new Promise(res=>{
+  $("dlg-t").textContent=title;$("dlg-p").textContent=msg||"";
+  const y=$("dlg-yes"),n=$("dlg-no");y.textContent=ok||"အတည်ပြုမည်";y.className="btn "+(danger?"btn-danger":"btn-pri");
+  $("dlg").classList.add("open");
+  const done=v=>{$("dlg").classList.remove("open");y.onclick=null;n.onclick=null;res(v);};
+  y.onclick=()=>done(true);n.onclick=()=>done(false);
+});}
+const empty=(ic,t)=>`<div class="empty">${I(ic)}${t}</div>`;
+const skel=()=>'<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+function loadBox(k){
+  if(M[k].err&&!M[k].ok)return `<div class="empty err">${I("alert")}Google Sheet နှင့် ချိတ်မရပါ<br><button class="btn btn-soft btn-sm mt" onclick="syncAll(true)">${I("sync")} ပြန်ကြိုးစားရန်</button></div>`;
+  return M[k].ok?"":skel();
+}
+function openSheet(html){$("sheet-body").innerHTML=html;$("sheet").classList.add("open");}
+function closeSheet(){$("sheet").classList.remove("open");}
+
+/* ---------- data layer (Google Sheet via SheetDB + ဖုန်းထဲ cache) ---------- */
+const S={repairs:[],products:[],sales:[]};
+const M={repairs:{ok:false,t:"",ts:0},products:{ok:false,t:"",ts:0},sales:{ok:false,t:"",ts:0}};
+function loadCache(){KINDS.forEach(k=>{const c=safeJSON(localStorage.getItem(CK[k]),null);if(c&&Array.isArray(c.list)){S[k]=c.list;M[k]={ok:true,t:c.t||"",ts:c.ts||0};}});}
+function saveCache(k){try{M[k].ts=Date.now();M[k].t=stamp();localStorage.setItem(CK[k],JSON.stringify({list:S[k],t:M[k].t,ts:M[k].ts}));}catch(e){}updateSync();}
+function endpoint(k,path){return API+(path||"")+(TAB[k]?"?sheet="+encodeURIComponent(TAB[k]):"");}
+async function http(k,method,path,body){
+  const r=await fetch(endpoint(k,path),{method,headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined});
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  return method==="GET"?r.json():null;
+}
+const NORM={
+  repairs:x=>({id:String(x.id),dt:parseSheetDate(x.date,true),cust:x.customer||"",phone:fixPhone(x.phone),model:x.model||"",issue:x.issue||"",fee:num(x.fee),cost:num(x.cost),paid:num(x.paid),due:parseSheetDate(x.due,false),note:x.note||"",status:ST[x.status]?x.status:"wait"}),
+  products:x=>({id:String(x.id),name:x.name||"",cat:CAT[x.cat]?x.cat:"other",bp:num(x.bp),sp:num(x.sp),stock:num(x.stock),imei:decImei(x.imei)}),
+  sales:x=>({id:String(x.id),dt:parseSheetDate(x.date,true),customer:x.customer||"ဧည့်သည်",phone:fixPhone(x.phone),note:x.note||"",items:safeJSON(x.items,[]).map(i=>({id:i.id,name:i.name,sp:num(i.sp),bp:num(i.bp),qty:num(i.qty)})),total:num(x.total),profit:num(x.profit)})
+};
+async function pull(k){
+  const rows=await http(k,"GET","");
+  S[k]=(Array.isArray(rows)?rows:[]).filter(x=>x&&x.id).map(NORM[k]).reverse();
+  M[k].ok=true;M[k].err=false;saveCache(k);
+}
+let syncing=false;
+async function syncAll(manual){
+  if(syncing)return;syncing=true;$("sync-btn").classList.add("spin");
+  let fail=0;
+  for(const k of KINDS){try{await pull(k);}catch(e){fail++;M[k].err=true;}}
+  syncing=false;$("sync-btn").classList.remove("spin");
+  renderPage(cur);updateSync();
+  if(manual)toast(fail?"ချိတ်ဆက်မရပါ — ဖုန်းထဲက စာရင်းကို ပြထားသည်":"Sheet နှင့် ညှိပြီးပါပြီ",fail?"err":"ok");
+}
+function lastSyncTs(){return Math.min(...KINDS.map(k=>M[k].ts||0));}
+function updateSync(){
+  const ts=lastSyncTs(),stale=!ts||Date.now()-ts>864e5;
+  $("sync-btn").classList.toggle("stale",stale);
+  const t=KINDS.map(k=>M[k].t).filter(Boolean).sort().pop();
+  $("d-sync").innerHTML=t?`${I("cloud")} နောက်ဆုံးညှိချိန်: ${esc(t)}`:"";
+}
+
+/* ---------- navigation ---------- */
+let cur="dash";
+function goPage(id){
+  cur=id;
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id==="page-"+id));
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.p===id));
+  renderPage(id);window.scrollTo({top:0});
+}
+function renderPage(id){({dash:renderDash,products:renderProducts,sales:()=>{renderSaleSelect();renderCart();},repair:renderRepairs,history:renderHistory})[id]();}
+function openProducts(){goPage("products");prodTab("list");}
+
+/* ---------- dashboard ---------- */
+function renderDash(){
+  const td=S.sales.filter(s=>(s.dt||"").slice(0,10)===todayKey());
+  $("h-today").textContent=money(sum(td,"total"));$("h-count").textContent=td.length;
+  $("h-profit").textContent=money(sum(td,"profit"));$("h-total").textContent=money(sum(S.sales,"total"));
+  const open=S.repairs.filter(r=>r.status!=="picked");
+  const low=S.products.filter(p=>p.stock<=3);
+  $("k-rep").textContent=open.length;$("k-low").textContent=low.length;$("k-prod").textContent=S.products.length;
+  $("d-rep-count").textContent=open.length;
+  $("d-rep-list").innerHTML=loadBox("repairs")||(open.length?open.slice(0,5).map(r=>`<button class="item tap" onclick="goPage('repair');repTab('list')"><div class="chip-ic info">${I("phone")}</div><div class="body"><div class="nm">${esc(r.cust)} <span class="tiny">${esc(r.model)}</span></div><div class="sb">${esc(r.issue)||"-"}</div></div><div class="side">${pill(ST[r.status].c,ST[r.status].t)}</div></button>`).join(""):empty("check","မပြီးသေးသော ဖုန်း မရှိပါ"));
+  $("d-low-stock").innerHTML=loadBox("products")||(low.length?low.slice(0,6).map(p=>`<button class="item tap" onclick="openProducts()"><div class="chip-ic warn">${I(CAT[p.cat].i)}</div><div class="body"><div class="nm">${esc(p.name)}</div><div class="sb">${CAT[p.cat].t}</div></div><div class="side">${pill(p.stock===0?"bad":"warn",p.stock===0?"ကုန်သွားပြီ":p.stock+" ခုကျန်")}</div></button>`).join(""):empty("check","Stock အားလုံး ပုံမှန်ရှိပါသည်"));
+  $("d-recent").innerHTML=loadBox("sales")||(S.sales.length?S.sales.slice(0,5).map(saleItem).join(""):empty("receipt","ရောင်းချမှု မရှိသေးပါ"));
+  renderMigrate();updateSync();
+}
+const saleItem=s=>`<button class="item tap" onclick="openSaleDetail('${s.id}')"><div class="chip-ic ok">${I("receipt")}</div><div class="body"><div class="nm">${esc(s.customer)} <span class="tiny">${esc(s.id)}</span></div><div class="sb">${fmtDT(s.dt)} · ${s.items.length} မျိုး</div></div><div class="side"><span class="price">${money(s.total)} ကျပ်</span></div></button>`;
+
+/* ---------- products ---------- */
+let pFilter="all",editingP=null;
+function buildChips(){
+  $("p-chips").innerHTML=[["all","အားလုံး",""],...Object.entries(CAT).map(([k,v])=>[k,v.t,v.i])].map(([k,t,i])=>`<button data-k="${k}" class="${k===pFilter?"on":""}" onclick="filterCat('${k}')">${i?I(i):""}${t}</button>`).join("");
+  $("r-chips").innerHTML=[["all","အားလုံး"],["wait","စောင့်ဆိုင်း"],["doing","ပြင်နေ"],["done","ပြီးပြီ"],["picked","ပြန်ယူပြီး"],["fail","ပြင်မရ"]].map(([k,t])=>`<button data-k="${k}" class="${k===repFilter?"on":""}" onclick="filterRep('${k}')">${t}</button>`).join("");
+}
+function filterCat(k){pFilter=k;buildChips();renderProducts();}
+function prodTab(t){
+  $("p-list-card").style.display=t==="list"?"block":"none";$("p-form-card").style.display=t==="form"?"block":"none";
+  $("pseg-list").classList.toggle("on",t==="list");$("pseg-form").classList.toggle("on",t==="form");
+  if(t==="list")renderProducts();window.scrollTo({top:0});
+}
+function renderProducts(){
+  $("pseg-n").textContent=S.products.length;
+  const el=$("product-list"),lb=loadBox("products");if(lb){el.innerHTML=lb;return;}
+  const q=$("p-search").value.trim().toLowerCase();
+  const list=S.products.filter(p=>(pFilter==="all"||p.cat===pFilter)&&(p.name+" "+p.imei).toLowerCase().includes(q));
+  el.innerHTML=list.length?list.map(p=>{
+    const sc=p.stock===0?"bad":p.stock<=3?"warn":"ok";
+    return `<div class="item"><div class="chip-ic">${I(CAT[p.cat].i)}</div><div class="body"><div class="nm">${esc(p.name)}</div>
+      <div class="sb">${CAT[p.cat].t}${p.imei?" · "+esc(p.imei):""}</div>
+      <div class="sb">${p.bp?"ဝယ် "+money(p.bp)+" · ":""}<span class="price">ရောင်း ${money(p.sp)} ကျပ်</span></div></div>
+      <div class="side">${pill(sc,p.stock===0?"ကုန်သွားပြီ":p.stock+" ခု")}</div>
+      <div class="foot"><button class="btn btn-sm btn-info" onclick="editProduct('${p.id}')" aria-label="ပြင်ရန်">${I("edit")} ပြင်ရန်</button><button class="btn btn-sm btn-bad" onclick="delProduct('${p.id}')" aria-label="ဖျက်ရန်">${I("trash")} ဖျက်ရန်</button></div></div>`;}).join("")
+    :empty("inbox","ကုန်ပစ္စည်း မတွေ့ပါ");
+}
+function resetProdForm(){
+  editingP=null;["p-name","p-price","p-sell","p-imei"].forEach(i=>$(i).value="");$("p-stock").value="1";$("p-cat").value="phone";
+  $("p-form-title").textContent="ကုန်ပစ္စည်းသစ် ထည့်ရန်";$("pseg-form-t").textContent="ပစ္စည်းသစ်";$("p-cancel-btn").style.display="none";
+}
+function editProduct(id){
+  const p=S.products.find(x=>x.id===id);if(!p)return;editingP=id;
+  $("p-name").value=p.name;$("p-cat").value=p.cat;$("p-price").value=p.bp||"";$("p-sell").value=p.sp||"";$("p-stock").value=p.stock;$("p-imei").value=p.imei;
+  $("p-form-title").textContent="ကုန်ပစ္စည်း ပြင်ဆင်ရန်";$("pseg-form-t").textContent="ပြင်ဆင်နေသည်";$("p-cancel-btn").style.display="block";prodTab("form");
+}
+async function saveProduct(){
+  const name=$("p-name").value.trim(),cat=$("p-cat").value,bp=num($("p-price").value),sp=num($("p-sell").value),imei=$("p-imei").value.trim();
+  const stock=$("p-stock").value===""?1:Math.max(0,parseInt($("p-stock").value)||0);
+  if(!name||sp<=0){toast("အမည်နှင့် ရောင်းဈေး ထည့်ပါ","err");return;}
+  const btn=$("p-save-btn");busy(btn,true,"Sheet ထဲ သိမ်းနေသည်...");
+  try{
+    if(editingP){
+      await http("products","PATCH","/id/"+encodeURIComponent(editingP),{data:{name,cat,bp,sp,stock,imei:encImei(imei)}});
+      Object.assign(S.products.find(x=>x.id===editingP),{name,cat,bp,sp,stock,imei});
+    }else{
+      const id="P"+Date.now();
+      await http("products","POST","",{data:[{id,name,cat,bp,sp,stock,imei:encImei(imei)}]});
+      S.products.unshift({id,name,cat,bp,sp,stock,imei});
+    }
+    saveCache("products");resetProdForm();prodTab("list");toast("သိမ်းပြီးပါပြီ","ok");
+  }catch(e){toast("Sheet ထဲ သိမ်းမရပါ — အင်တာနက်စစ်ပြီး ပြန်ကြိုးစားပါ","err");}
+  busy(btn,false);
+}
+async function delProduct(id){
+  const p=S.products.find(x=>x.id===id);if(!p)return;
+  if(!await ask("ကုန်ပစ္စည်း ဖျက်မည်လား?",p.name+" ကို Sheet ထဲကပါ ဖျက်မည်။","ဖျက်မည်",true))return;
+  try{await http("products","DELETE","/id/"+encodeURIComponent(id));S.products=S.products.filter(x=>x.id!==id);saveCache("products");renderProducts();toast("ဖျက်ပြီးပါပြီ","ok");}
+  catch(e){toast("ဖျက်မရပါ — ပြန်ကြိုးစားပါ","err");}
+}
+
+/* ---------- sales ---------- */
+let cart=[],lastVoucher=null;
+function renderSaleSelect(){
+  const list=S.products.filter(p=>p.stock>0),sel=$("s-prod"),keep=sel.value;
+  sel.innerHTML="<option value=''>— ကုန်ပစ္စည်း ရွေးပါ —</option>"+list.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} — ${money(p.sp)} ကျပ် (${p.stock} ခု)</option>`).join("");
+  if(keep&&list.some(p=>p.id===keep))sel.value=keep;
+}
+function addSaleItem(){
+  const pid=$("s-prod").value,qty=Math.max(1,parseInt($("s-qty").value)||1);
+  if(!pid){toast("ကုန်ပစ္စည်း ရွေးပါ","err");return;}
+  const p=S.products.find(x=>x.id===pid);if(!p)return;
+  const ex=cart.find(i=>i.id===pid),have=ex?ex.qty:0;
+  if(have+qty>p.stock){toast("Stock မလောက်ပါ (ရှိသည်: "+p.stock+")","err");return;}
+  if(ex)ex.qty+=qty;else cart.push({id:pid,name:p.name,sp:p.sp,bp:p.bp||0,qty});
+  $("s-qty").value=1;$("s-prod").value="";renderCart();
+}
+function removeCartItem(id){cart=cart.filter(i=>i.id!==id);renderCart();}
+function renderCart(){
+  $("s-n").textContent=cart.length;
+  const total=cart.reduce((s,i)=>s+i.sp*i.qty,0),profit=cart.reduce((s,i)=>s+(i.sp-i.bp)*i.qty,0);
+  $("s-list").innerHTML=cart.length?cart.map(i=>`<div class="item"><div class="chip-ic ok">${I("tag")}</div><div class="body"><div class="nm">${esc(i.name)}</div><div class="sb">${i.qty} × ${money(i.sp)} = <span class="price">${money(i.qty*i.sp)} ကျပ်</span></div></div><div class="side"><button class="btn btn-sq btn-bad" onclick="removeCartItem('${i.id}')" aria-label="ဖယ်ရှားရန်">${I("x")}</button></div></div>`).join(""):empty("cart","ပစ္စည်း မထည့်ရသေးပါ");
+  $("s-total").textContent=money(total)+" ကျပ်";$("s-profit-lbl").textContent=profit>0?"အမြတ် "+money(profit)+" ကျပ်":"";
+}
+function clearCart(){cart=[];["s-cust","s-phone","s-note"].forEach(i=>$(i).value="");renderCart();}
+const saleRow=r=>({id:r.id,date:r.dt.replace("T"," "),dateStr:fmtDT(r.dt),customer:r.customer,phone:r.phone,note:r.note,items:JSON.stringify(r.items),total:r.total,profit:r.profit});
+async function generateVoucher(){
+  if(!cart.length){toast("ပစ္စည်း မထည့်ရသေးပါ","err");return;}
+  for(const c of cart){const p=S.products.find(x=>x.id===c.id);if(!p||p.stock<c.qty){toast(c.name+" — Stock မလောက်ပါ","err");return;}}
+  const total=cart.reduce((s,i)=>s+i.sp*i.qty,0),profit=cart.reduce((s,i)=>s+(i.sp-i.bp)*i.qty,0);
+  const rec={id:"V"+Date.now().toString().slice(-7),dt:nowISO(),customer:$("s-cust").value.trim()||"ဧည့်သည်",phone:$("s-phone").value.trim(),note:$("s-note").value.trim(),items:cart.map(c=>({...c})),total,profit};
+  const btn=$("s-go");busy(btn,true,"Sheet ထဲ သိမ်းနေသည်...");
+  try{
+    await http("sales","POST","",{data:[saleRow(rec)]});
+    S.sales.unshift(rec);saveCache("sales");
+    let bad=0;
+    for(const c of cart){
+      const p=S.products.find(x=>x.id===c.id),ns=p.stock-c.qty;
+      try{await http("products","PATCH","/id/"+encodeURIComponent(c.id),{data:{stock:ns}});p.stock=ns;}catch(e){bad++;}
+    }
+    saveCache("products");clearCart();renderSaleSelect();openVoucher(rec);
+    if(bad)toast("Stock "+bad+" ခု မပြင်နိုင်ပါ — ကုန်ပစ္စည်းစာရင်းတွင် ကိုယ်တိုင်ပြင်ပါ","err");
+  }catch(e){toast("Sheet ထဲ သိမ်းမရပါ — ပြန်ကြိုးစားပါ","err");}
+  busy(btn,false);
+}
+
+/* ---------- voucher ---------- */
+function voucherHTML(d){
+  const rows=d.items.map(i=>`<div class="v-row"><span>${esc(i.name)} × ${i.qty}</span><b>${money(i.qty*i.sp)} ကျပ်</b></div>`).join("");
+  return `<div id="voucher-card"><div class="v-head"><div class="brand"><img src="${LOGO}" alt=""><div><div class="nm">Lin Mobile Shop</div><div class="id">ဘောင်ချာ ${esc(d.id)}</div></div></div><div class="dt">${fmtDT(d.dt)}</div></div>
+  <div class="v-body"><div class="v-cust">ဝယ်သူ: <b>${esc(d.customer)}</b>${d.phone?"<br>ဖုန်း: "+esc(d.phone):""}${d.note?"<br>မှတ်ချက်: "+esc(d.note):""}</div>${rows}
+  <div class="v-total"><span>စုစုပေါင်း</span><b>${money(d.total)} ကျပ်</b></div>
+  <div class="v-foot">ဝယ်ယူမှုအတွက် ကျေးဇူးတင်ပါသည်<br><b>Lin Mobile Shop</b></div></div></div>`;
+}
+function openVoucher(d){
+  lastVoucher=d;
+  openSheet(voucherHTML(d)+`<div class="row2 mt"><button class="btn btn-pri" id="v-save" onclick="saveVoucher()">${I("download")} ပုံသိမ်းရန်</button>${navigator.canShare?`<button class="btn btn-soft" id="v-share" onclick="shareVoucher()">${I("share")} မျှဝေရန်</button>`:`<button class="btn btn-ghost" onclick="closeSheet()">${I("x")} ပိတ်ရန်</button>`}</div>${navigator.canShare?`<button class="btn btn-ghost block mt" onclick="closeSheet()">${I("x")} ပိတ်ရန်</button>`:""}`);
+}
+async function voucherCanvas(){if(typeof html2canvas==="undefined")throw new Error("no lib");return html2canvas($("voucher-card"),{scale:3,backgroundColor:"#ffffff",useCORS:true});}
+async function saveVoucher(){
+  const b=$("v-save");busy(b,true,"လုပ်ဆောင်နေသည်...");
+  try{const c=await voucherCanvas(),a=document.createElement("a");a.download="LinMobile_"+lastVoucher.id+".png";a.href=c.toDataURL("image/png");document.body.appendChild(a);a.click();a.remove();toast("ဘောင်ချာပုံ သိမ်းပြီးပါပြီ","ok");}
+  catch(e){toast("ပုံ မထုတ်နိုင်ပါ — အင်တာနက်စစ်ပါ","err");}
+  busy(b,false);
+}
+async function shareVoucher(){
+  const b=$("v-share");busy(b,true,"လုပ်ဆောင်နေသည်...");
+  try{
+    const c=await voucherCanvas(),blob=await new Promise(r=>c.toBlob(r,"image/png")),f=new File([blob],"LinMobile_"+lastVoucher.id+".png",{type:"image/png"});
+    if(navigator.canShare({files:[f]}))await navigator.share({files:[f],title:"Lin Mobile Shop ဘောင်ချာ"});else toast("ဤစက်တွင် မျှဝေ၍မရပါ — ပုံသိမ်းရန်ကို သုံးပါ","err");
+  }catch(e){if(e&&e.name!=="AbortError")toast("မျှဝေမရပါ","err");}
+  busy(b,false);
+}
+
+/* ---------- history ---------- */
+function renderHistory(){
+  $("h-n").textContent=S.sales.length;
+  const el=$("h-list"),lb=loadBox("sales");if(lb){el.innerHTML=lb;return;}
+  const q=$("h-search").value.trim().toLowerCase();
+  const list=S.sales.filter(s=>(s.customer+" "+s.id+" "+s.phone).toLowerCase().includes(q));
+  el.innerHTML=list.length?list.map(saleItem).join(""):empty("receipt","မှတ်တမ်း မရှိသေးပါ");
+}
+function openSaleDetail(id){
+  const s=S.sales.find(x=>x.id===id);if(!s)return;
+  openSheet(`<div class="card-h"><div class="chip-ic ok">${I("receipt")}</div><h2>${esc(s.customer)} <span class="tiny">${esc(s.id)}</span></h2></div>
+    <p class="muted" style="margin-bottom:10px">${fmtDT(s.dt)}${s.phone?" · "+esc(s.phone):""}${s.note?"<br>"+esc(s.note):""}</p>
+    ${s.items.map(i=>`<div class="v-row"><span>${esc(i.name)} × ${i.qty}</span><b>${money(i.qty*i.sp)} ကျပ်</b></div>`).join("")}
+    <div class="totalbar"><div><small>စုစုပေါင်း</small>${s.profit>0?`<small>အမြတ် ${money(s.profit)} ကျပ်</small>`:""}</div><b>${money(s.total)} ကျပ်</b></div>
+    <button class="btn btn-soft block mt" onclick="openVoucher(S.sales.find(x=>x.id==='${s.id}'))">${I("receipt")} ဘောင်ချာ ပြန်ကြည့်ရန်</button>
+    <button class="btn btn-bad block mt" onclick="delSale('${s.id}')">${I("trash")} ဤမှတ်တမ်း ဖျက်ရန်</button>`);
+}
+async function delSale(id){
+  if(!await ask("မှတ်တမ်း ဖျက်မည်လား?","Sheet ထဲကပါ ဖျက်မည်။ Stock ကို ပြန်မတိုးပါ။","ဖျက်မည်",true))return;
+  try{await http("sales","DELETE","/id/"+encodeURIComponent(id));S.sales=S.sales.filter(s=>s.id!==id);saveCache("sales");closeSheet();renderPage(cur);toast("ဖျက်ပြီးပါပြီ","ok");}
+  catch(e){toast("ဖျက်မရပါ — ပြန်ကြိုးစားပါ","err");}
+}
+
+/* ---------- repairs ---------- */
+let repFilter="all",editingId=null;
+function repTab(t){
+  $("r-form-card").style.display=t==="form"?"block":"none";$("r-list-card").style.display=t==="list"?"block":"none";
+  $("seg-form").classList.toggle("on",t==="form");$("seg-list").classList.toggle("on",t==="list");
+  if(t==="list")renderRepairs();window.scrollTo({top:0});
+}
+function filterRep(k){repFilter=k;buildChips();renderRepairs();}
+function resetRepForm(){
+  editingId=null;["r-cust","r-phone","r-model","r-issue","r-fee","r-cost","r-paid","r-due","r-note"].forEach(i=>$(i).value="");
+  $("r-dt").value=nowISO();$("r-form-title").textContent="ဖုန်းပြင်ရန် လက်ခံမှတ်တမ်း";$("seg-form-t").textContent="လက်ခံမှတ်တမ်း";$("r-cancel-btn").style.display="none";
+}
+function editRepair(id){
+  const r=S.repairs.find(x=>x.id===id);if(!r)return;editingId=id;
+  const set=(k,v)=>$(k).value=v;
+  set("r-cust",r.cust);set("r-phone",r.phone);set("r-model",r.model);set("r-issue",r.issue);set("r-fee",r.fee||"");set("r-cost",r.cost||"");set("r-paid",r.paid||"");set("r-due",r.due||"");set("r-note",r.note);set("r-dt",r.dt||nowISO());
+  $("r-form-title").textContent="မှတ်တမ်း ပြင်ဆင်ရန်";$("seg-form-t").textContent="ပြင်ဆင်နေသည်";$("r-cancel-btn").style.display="block";repTab("form");
+}
+async function addRepair(){
+  const v=i=>$(i).value.trim();
+  if(!v("r-cust")||!v("r-model")){toast("ပိုင်ရှင်အမည်နှင့် ဖုန်းမော်ဒယ် ထည့်ပါ","err");return;}
+  const dt=v("r-dt")||nowISO();
+  const f={customer:v("r-cust"),phone:v("r-phone"),model:v("r-model"),issue:v("r-issue"),fee:num(v("r-fee")),cost:num(v("r-cost")),paid:num(v("r-paid")),due:v("r-due"),note:v("r-note")};
+  const mem={dt,cust:f.customer,phone:f.phone,model:f.model,issue:f.issue,fee:f.fee,cost:f.cost,paid:f.paid,due:f.due,note:f.note};
+  const btn=$("r-add-btn");busy(btn,true,"Sheet ထဲ သိမ်းနေသည်...");
+  try{
+    if(editingId){
+      await http("repairs","PATCH","/id/"+encodeURIComponent(editingId),{data:{...f,date:dt.replace("T"," ")}});
+      Object.assign(S.repairs.find(x=>x.id===editingId),mem);
+    }else{
+      const id="R"+Date.now();
+      await http("repairs","POST","",{data:[{id,date:dt.replace("T"," "),...f,status:"wait"}]});
+      S.repairs.unshift({id,...mem,status:"wait"});
+    }
+    saveCache("repairs");resetRepForm();repTab("list");toast("သိမ်းပြီးပါပြီ","ok");
+  }catch(e){toast("Sheet ထဲ သိမ်းမရပါ — အင်တာနက်စစ်ပြီး ပြန်ကြိုးစားပါ","err");}
+  busy(btn,false);
+}
+async function setStatus(id,st,extra){
+  const r=S.repairs.find(x=>x.id===id);if(!r)return;
+  try{await http("repairs","PATCH","/id/"+encodeURIComponent(id),{data:{status:st,...(extra||{})}});r.status=st;Object.assign(r,extra||{});saveCache("repairs");renderRepairs();}
+  catch(e){toast("Sheet ပြင်မရပါ — ပြန်ကြိုးစားပါ","err");}
+}
+function nextStatus(id){const r=S.repairs.find(x=>x.id===id);if(!r)return;const st=ST[r.status].n;setStatus(id,st,st==="picked"?{paid:r.fee}:null);}
+async function markFail(id,on){
+  if(on&&!await ask("ပြင်မရဟု မှတ်မည်လား?","ဤဖုန်းကို ပြင်၍မရဟု မှတ်မည်။ ဖောက်သည်စစ်သည့် စာမျက်နှာတွင်လည်း ပေါ်ပါမည်။","မှတ်မည်",true))return;
+  setStatus(id,on?"fail":"doing");
+}
+async function delRepair(id){
+  if(!await ask("မှတ်တမ်း ဖျက်မည်လား?","Sheet ထဲကပါ ဖျက်မည်။","ဖျက်မည်",true))return;
+  try{await http("repairs","DELETE","/id/"+encodeURIComponent(id));S.repairs=S.repairs.filter(x=>x.id!==id);saveCache("repairs");renderRepairs();toast("ဖျက်ပြီးပါပြီ","ok");}
+  catch(e){toast("ဖျက်မရပါ — ပြန်ကြိုးစားပါ","err");}
+}
+function renderRepairs(){
+  $("seg-n").textContent=S.repairs.length;
+  const el=$("repair-list"),lb=loadBox("repairs");
+  if(lb){el.innerHTML=lb;return;}
+  const q=$("r-search").value.trim().toLowerCase();
+  const list=S.repairs.filter(r=>(repFilter==="all"||r.status===repFilter)&&(r.cust+" "+r.model+" "+r.phone+" "+r.issue).toLowerCase().includes(q));
+  el.innerHTML=list.length?list.map(r=>{
+    const bal=r.fee-r.paid,s=ST[r.status];
+    return `<div class="item"><div class="chip-ic info">${I("phone")}</div><div class="body">
+      <div class="nm">${esc(r.cust)} <span class="tiny">${esc(r.model)}</span></div>
+      ${r.phone?`<div class="sb">${I("call")}<a href="tel:${esc(r.phone)}">${esc(r.phone)}</a></div>`:""}
+      <div class="sb">${I("wrench")}${esc(r.issue)||"-"}</div>
+      <div class="sb">${I("clock")}လက်ခံ ${fmtDT(r.dt)}</div>
+      ${r.due?`<div class="sb">${I("calendar")}ပြန်ပေးရက် ${fmtD(r.due)}</div>`:""}
+      ${r.note?`<div class="sb">${I("note")}${esc(r.note)}</div>`:""}
+      <div class="sb"><span class="price">ပြင်ခ ${money(r.fee)} ကျပ်</span>${r.paid&&bal>0?` · <span class="neg">ကျန် ${money(bal)}</span>`:""}${r.fee&&bal<=0?` · ${pill("ok","ရှင်းပြီး")}`:""}</div></div>
+      <div class="side"><button class="pill ${s.c}" onclick="nextStatus('${r.id}')" aria-label="အခြေအနေ ပြောင်းရန်">${s.t}</button></div>
+      <div class="foot"><button class="btn btn-sm btn-info" onclick="editRepair('${r.id}')" aria-label="ပြင်ရန်">${I("edit")} ပြင်ရန်</button>
+      ${r.status==="fail"?`<button class="btn btn-sm btn-soft" onclick="markFail('${r.id}',false)" aria-label="ပြန်ပြင်မည်">${I("undo")} ပြန်ပြင်မည်</button>`:r.status!=="picked"?`<button class="btn btn-sm btn-bad" onclick="markFail('${r.id}',true)" aria-label="ပြင်မရ">${I("xcircle")} ပြင်မရ</button>`:""}
+      <button class="btn btn-sm btn-bad" onclick="delRepair('${r.id}')" aria-label="ဖျက်ရန်">${I("trash")} ဖျက်ရန်</button></div></div>`;}).join("")
+    :empty("inbox","မှတ်တမ်း မတွေ့ပါ");
+  $("r-total").textContent=money(sum(list,"fee"))+" ကျပ်";
+  $("r-profit").textContent=money(list.reduce((a,r)=>a+(r.fee-r.cost),0))+" ကျပ်";
+}
+
+/* ---------- အဟောင်း (ဖုန်းထဲ) ဒေတာကို Sheet သို့ ရွှေ့ရန် ---------- */
+const oldLocal=()=>({p:safeJSON(localStorage.getItem("lms_p"),[]),s:safeJSON(localStorage.getItem("lms_s"),[])});
+function renderMigrate(){
+  const {p,s}=oldLocal(),box=$("migrate-box");
+  if(localStorage.getItem("lms3_migrated")||(!p.length&&!s.length)){box.innerHTML="";return;}
+  box.innerHTML=`<div class="banner"><div class="chip-ic warn">${I("cloud")}</div><div><h3>ဖုန်းထဲက အဟောင်းဒေတာ တွေ့ပါသည်</h3><p>ကုန်ပစ္စည်း ${p.length} မျိုး၊ ရောင်းချမှု ${s.length} ခုကို Google Sheet သို့ ရွှေ့နိုင်ပါသည်။</p><button class="btn btn-pri btn-sm" id="mig-btn" onclick="migrateOld()">${I("upload")} Sheet သို့ ရွှေ့မည်</button> <button class="btn btn-ghost btn-sm" onclick="skipMigrate()">မလိုပါ</button></div></div>`;
+}
+async function skipMigrate(){if(await ask("မရွှေ့တော့ဘူးလား?","အဟောင်းဒေတာကို Sheet သို့ မရွှေ့ဘဲ ဤအကြံပေးချက်ကို ဖျောက်မည်။","အတည်ပြုမည်")){localStorage.setItem("lms3_migrated","skip");renderMigrate();}}
+async function migrateOld(){
+  const {p,s}=oldLocal();
+  if(!await ask("Sheet သို့ ရွှေ့မည်လား?","ကုန်ပစ္စည်း "+p.length+" မျိုးနှင့် ရောင်းချမှု "+s.length+" ခုကို Google Sheet ထဲ ထည့်မည်။ တစ်ကြိမ်သာ လုပ်ပါ။","ရွှေ့မည်"))return;
+  const btn=$("mig-btn");busy(btn,true,"ရွှေ့နေသည်...");
+  const toISO=d=>{const t=new Date(d);return isNaN(t)?nowISO():t.getFullYear()+"-"+p2(t.getMonth()+1)+"-"+p2(t.getDate())+"T"+p2(t.getHours())+":"+p2(t.getMinutes());};
+  try{
+    if(p.length)await http("products","POST","",{data:p.map(x=>({id:"P"+x.id,name:x.name,cat:x.cat,bp:x.bp||0,sp:x.sp,stock:x.stock,imei:encImei(x.imei)}))});
+    if(s.length)await http("sales","POST","",{data:s.map(x=>saleRow({id:x.id,dt:toISO(x.date),customer:x.customer||"ဧည့်သည်",phone:x.phone||"",note:x.note||"",items:(x.items||[]).map(i=>({...i,id:"P"+i.id})),total:x.total||0,profit:x.profit||0}))});
+    localStorage.setItem("lms3_migrated","1");
+    for(const k of ["products","sales"]){try{await pull(k);}catch(e){}}
+    renderDash();toast("Sheet သို့ ရွှေ့ပြီးပါပြီ","ok");
+  }catch(e){toast("ရွှေ့မရပါ — ပြန်ကြိုးစားပါ","err");busy(btn,false);}
+}
+
+/* ---------- init ---------- */
+$("logo-img").src=LOGO;
+$("p-search").addEventListener("input",renderProducts);
+$("r-search").addEventListener("input",renderRepairs);
+$("h-search").addEventListener("input",renderHistory);
+loadCache();buildChips();resetRepForm();resetProdForm();goPage("dash");
+(async()=>{
+  const need=KINDS.filter(k=>!M[k].ok);
+  if(need.length){for(const k of need){try{await pull(k);}catch(e){M[k].err=true;}}renderPage(cur);}
+  else if(Date.now()-lastSyncTs()>864e5)syncAll(false);
+  updateSync();
+})();
+if("serviceWorker" in navigator&&location.protocol.startsWith("http")){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+
+</script>
+</body>
+</html>
